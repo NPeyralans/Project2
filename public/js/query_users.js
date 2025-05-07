@@ -5,42 +5,38 @@ console.log("Inside query_users.js");
 document.getElementById("queryUsers").addEventListener("submit", async(e) => {
 	e.preventDefault();
 	const username = document.getElementById("username").value;
+	const output = document.getElementById("output");
+	output.innerHTML = "";
 
-	console.log(`Sending ${username} to backend...`);
+	try {
+		const response = await fetch(`/users/query?username=${encodeURIComponent(username)}`, {
+			method: "GET",
+			headers: {
+				"Accept": "application/json"
+			}
+		});
 
-	// Send data to my backed API
-	const response = await fetch(`/users/query?username=${encodeURIComponent(username)}`, {
-		method: "GET",
-		headers: {
-			"Accept": "application/json"
+		if (!response.ok){
+			const text = await response.text();
+			throw new Error(`Server returned ${response.status}: ${text}`);
 		}
-	});
 
-	if (!response.ok){
-		const text = await response.text();
-		throw new Error(`Server returned ${response.status}: ${text}`);
-	}
-	const data = await response.json();
-	console.log(`Data returned from query_users.js: ${data}`);
+		const [user] = await response.json();
+		console.log("Returned from API: ", user);
 
+		const div = document.createElement("div");
+		div.className = "user";
+		div.innerHTML = `
+			<p><strong>User found:</strong>${user.username}</p>
+			<p><strong>User ID:</strong>${user.user_id}</p>
+			<p><strong>Email:</strong>${user.email}</p>
+			<p><strong>Created at:</strong>${new Date(user.created_at).toLocaleString()}</p>
+		`;
+
+		output.appendChild(div);
+		} catch (err){
+			output.innerHTML = `<p class="error">Error: ${err.message}</p>`;
+		}
 });
 
-function display(users){
-	const output = document.getElementById("output");
-
-	output.innerHTML = `
-		<ul>
-			${users.map(u => `
-				<li>
-					<strong>${u.username}</strong>
-					<ul>
-						<li>User ID: ${u.user_id}</li>
-						<li>Created at: ${u.created_at}</li>
-					</ul>
-				</li>
-			`).join('')}
-		</ul>
-
-	`;
-}
 

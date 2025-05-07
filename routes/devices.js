@@ -4,18 +4,26 @@ const router = express.Router();
 const db = require('../db');
 
 router.get('/query', async (req, res) => {
-	console.log("inside devices.js");
 	const { username } = req.query;
-	console.log("After getting req");
-	if (username) {
-		// If a username was passed
-		db.query('SELECT * FROM device WHERE username = ?', [username], (err, results) => {
-			if (err) return res.status(500).send('DB Error');
-			res.json(results);
-		});
-	} else {
-		// No username passed as query param
-	}
+
+	const sql = `
+		SELECT d.*
+		FROM devices d
+		JOIN users u ON d.user_id = u.user_id
+		WHERE u.username = ?
+	`;
+
+	db.query(sql, [username], (err, results) => {
+		if (err) {
+			console.error(err);
+			return res.status(500).json({
+				error: "Database error"
+			});
+		}
+
+		res.json(results);
+	});
+	
 });
 
 router.post('/', async (req, res) => {
@@ -31,7 +39,9 @@ router.post('/', async (req, res) => {
 	db.query(query, values, (err, result) => {
 		if (err) {
 			console.error("DB Insert Error:", err.message);
-			return res.status(500).send('Database error');
+			return res.status(500).json({
+				error: 'Database error'
+			});
 		}
 		console.log('User inserted with ID: ',result.insertId);
 		res.status(201).send(`User added with ID ${result.insertId}`);

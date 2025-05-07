@@ -11,6 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/users', userRoutes);
+app.use('/devices', deviceRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server on http://localhost:${PORT}`));
