@@ -4,46 +4,37 @@ console.log("Inside add_users.js");
 // Retrieve desired data
 document.getElementById("addUser").addEventListener("submit", async(e) => {
 	e.preventDefault();
+	const username = document.getElementById("username").value;
+	const email = document.getElementById("email").value;
 
-	const formData = new FormData(e.target);
+	console.log(`Username: ${username} and email: ${email} sent to server`);
 
-	const data = Object.fromEntries(formData.entries());
-
-	// Send data to my backed API
-	const response = await fetch("/users", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json"
-		},
-		body: JSON.stringify(data)
-	});
-
-	console.log(response.insertId);
-
-	if (!response.ok){
-		const text = await response.text();
-		throw new Error(`Server returned ${response.status}: ${text}`);
-	}
-
-	const result = await response.text();
-
-});
-
-function display(newUser){
 	const output = document.getElementById("output");
+	output.innerHTML = "";
 
-	output.innerHTML = `
-		<ul>
-			${newUser.map(u => `
-				<li>
-					<strong>${u.username}</strong>
-					<ul>
-						<li>User ID: ${u.user_id}</li>
-						<li>Created at: ${u.created_at}</li>
-					</ul>
-				</li>
-			`).join('')}
-		</ul>
+	try {
+		const response = await fetch("/users", {
+			method: "POST",
+			headers: {
+				"Accept": "application/json",
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({ username, email: email })
+		});
 
-	`;
-}
+		const returnData = await response.json();
+		console.log("Returned from API:", returnData);
+
+		const div = document.createElement("div");
+		div.className = "newUser";
+		div.innerHTML = `
+			<p><strong>New user successfully added!</strong></p>
+			<p><strong>Username:</strong>${username}</p>
+			<p><strong>User ID:</strong>${returnData.user_id}</p>
+		`;
+		output.appendChild(div);
+		
+	} catch (err) {
+		output.innerHTML = `<p class="error">Error: ${err.message}</p>`
+	}
+});

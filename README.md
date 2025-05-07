@@ -8,6 +8,7 @@ A web application that connects a MySQL backend database to a browser interface 
 - [Backend](#backend)
 - [Installation](#installation)
 - [Features](#features)
+- [Limitations](#limitations)
 
 ## Goals
 - Create a web interface for querying and managing users and devices
@@ -42,3 +43,7 @@ RESTful API endpoints include:
 - Consistent JSON-based API with proper error responses  
 - Docker-compatible for easy local or remote deployment
 
+## Limitations
+This is a rudimentary project meant for improving front-end to back end
+interaction; It is lacking significantly in sanitizing user input which
+could have significant improvments. As it is, there is no sanitation.

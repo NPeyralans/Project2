@@ -22,7 +22,9 @@ router.post('/', async (req, res) => {
 	const { username, email } = req.body;
 
 	if (!username){
-		return res.status(400).send('Must submit a unique username');
+		return res.status(400).json({
+			error: "Must submit a unique username"
+		});
 	}
 
 	const query = 'INSERT INTO users (username, email) VALUES (?, ?)';
@@ -31,11 +33,18 @@ router.post('/', async (req, res) => {
 	db.query(query, values, (err, result) => {
 		if (err) {
 			console.error("DB Insert Error:", err.message);
-			return res.status(500).send('Database error');
+			return res.status(500).json({
+				error: "Database error"}
+			);
 		}
+
 		console.log('User inserted with ID: ',result.insertId);
-		res.status(201).send(`User added with ID ${result.insertId}`);
+		res.status(201).json({
+			message: "User successfully added!",
+			user_id: result.insertId
+		});
 	});
 });
+
 
 module.exports = router;
