@@ -1,0 +1,17 @@
+{
+  "name": "project2",
+  "version": "1.0.0",
+  "description": "This is a project to become more familiar with asynchronous operations connecting a database with form input from a webpage",
+  "license": "ISC",
+  "author": "Nikolos Peyralans",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1",
+    "path": "^0.12.7"
+  }
+}
