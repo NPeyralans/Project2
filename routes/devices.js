@@ -27,24 +27,46 @@ router.get('/query', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-	const { username, email } = req.body;
+	const { username, device_name } = req.body;
+	console.log("Received POST request: ", req.body);
 
-	if (!username){
-		return res.status(400).send('Must submit a unique username');
+	if (!username || !device_name){
+		return res.status(400).json({ error: "Must submit a device name and user" });
 	}
 
-	const query = 'INSERT INTO device (username, email) VALUES (?, ?)';
-	const values = [username, email || null];
-
-	db.query(query, values, (err, result) => {
+	const getUserQuery = 'SELECT user_id FROM users WHERE username = ?';
+	db.query(getUserQuery, [username], (err, userResult) => {
 		if (err) {
-			console.error("DB Insert Error:", err.message);
+			console.error("DB lookup error:", err);
 			return res.status(500).json({
-				error: 'Database error'
+				error: "Database error during user lookup"
 			});
 		}
-		console.log('User inserted with ID: ',result.insertId);
-		res.status(201).send(`User added with ID ${result.insertId}`);
+
+		if (userResult.length === 0) {
+			return res.status(404).json({
+				error: "User not found"
+			});
+		}
+
+		const user_id = userResult[0].user_id;
+
+		const insertDeviceQuery = 'INSERT INTO devices (user_id, device_name) VALUES (?, ?)';
+		db.query(insertDeviceQuery, [user_id, device_name], (err, deviceResult) => {
+			if (err) {
+				console.error("DB insert error:", err);
+				return res.status(500).json({
+					error: "Database insert error"
+				});
+			}
+
+			res.status(201).json({
+				message: "Device successfully added!",
+				device_id: deviceResult.insertId,
+				device_name,
+				username
+			});
+		});
 	});
 });
 
