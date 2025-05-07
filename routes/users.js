@@ -18,4 +18,24 @@ router.get('/query', async (req, res) => {
 	}
 });
 
+router.post('/', async (req, res) => {
+	const { username, email } = req.body;
+
+	if (!username){
+		return res.status(400).send('Must submit a unique username');
+	}
+
+	const query = 'INSERT INTO users (username, email) VALUES (?, ?)';
+	const values = [username, email || null];
+
+	db.query(query, values, (err, result) => {
+		if (err) {
+			console.error("DB Insert Error:", err.message);
+			return res.status(500).send('Database error');
+		}
+		console.log('User inserted with ID: ',result.insertId);
+		res.status(201).send(`User added with ID ${result.insertId}`);
+	});
+});
+
 module.exports = router;
