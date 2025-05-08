@@ -16,13 +16,20 @@ document.getElementById("queryUsers").addEventListener("submit", async(e) => {
 			}
 		});
 
-		if (!response.ok){
-			const text = await response.text();
-			throw new Error(`Server returned ${response.status}: ${text}`);
+		if (!response.ok) {
+			const message = await response.text();
+			throw new Error(message);
 		}
 
-		const [user] = await response.json();
-		console.log("Returned from API: ", user);
+		console.log("Status Code:", response.status);
+		const data = await response.json();
+		console.log("Returned from API: ", data);
+
+		if (!data.length){
+			output.innerHTML = `<p>No users found.</p>`;
+			return;
+		}
+		const user = data[0];
 
 		const div = document.createElement("div");
 		div.className = "user";

@@ -20,7 +20,17 @@ document.getElementById("queryDevices").addEventListener("submit", async(e) => {
 		});
 
 		const devices = await response.json();
+
+		if (!response.ok){
+			throw new Error(devices.error || "Invalid username");
+		}
+
 		console.log("Returned from API: ", devices);
+
+		if (devices.length === 0) {
+			output.innerHTML = `<p>No devices found for that user</p>`;
+			return;
+		}
 
 		devices.forEach(device => {
 				const div = document.createElement("div");
@@ -34,6 +44,7 @@ document.getElementById("queryDevices").addEventListener("submit", async(e) => {
 				output.appendChild(div);
 			});
 	} catch(err){
+		console.log(err);
 		output.innerHTML = `<p class="error">Error: ${err.message}</p>`;
 	}
 });

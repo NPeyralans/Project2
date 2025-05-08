@@ -31,6 +31,26 @@ RESTful API endpoints include:
 - `POST /devices` — Register a new device
 
 ## Installation
+Requirements: Docker and Docker Compose
+1. Clone the repository
+```bash
+git clone https://github.com/NPeyralans/project2.git
+cd project2
+```
+2. Build and start containers
+```bash
+sudo docker-compose up --build
+```
+3. Test the app by going to http://localhost:3000
+
+4. To stop the app
+```bash
+sudo docker-compose down
+```
+5. If there are issues and you need to reset, run 
+```bash
+docker-compose down -v
+```
 
 ## Features
 
@@ -44,6 +64,8 @@ RESTful API endpoints include:
 - Docker-compatible for easy local or remote deployment
 
 ## Limitations
-This is a rudimentary project meant for improving front-end to back end
-interaction; It is lacking significantly in sanitizing user input which
-could have significant improvments. As it is, there is no sanitation.
+This was a rudimentary project to practice front end and back end
+connections as well as database creation and queries. There is no 
+input sanitation as there should be in a production environment; 
+however, that was accepted because all the code was produced within
+a 30 hour period.

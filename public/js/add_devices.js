@@ -24,7 +24,15 @@ document.getElementById("addDevice").addEventListener("submit", async(e) => {
 		});
 
 		const device = await response.json();
+
+		if (!response.ok){
+			throw new Error(device.error || "Invalid username");
+		}
 		console.log("Returned from API: ", device);
+
+		if (device.length === 0) {
+			res.status(404).json({ message: "No devices found" });
+		}
 
 		const div = document.createElement("div");
 		div.className = "device";

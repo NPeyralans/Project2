@@ -13,17 +13,16 @@ router.get('/query', async (req, res) => {
 		WHERE u.username = ?
 	`;
 
-	db.query(sql, [username], (err, results) => {
-		if (err) {
-			console.error(err);
-			return res.status(500).json({
-				error: "Database error"
-			});
+	try {
+		const [results] = await db.query(sql, [username]);
+		if (results.length === 0) {
+			return res.status(404).send('No devices registered to that user.');
 		}
-
 		res.json(results);
-	});
-	
+	} catch (err) {
+		console.error("DB query error:", err.message);
+		res.status(500).json({ error: "Database error" });
+	}
 });
 
 router.post('/', async (req, res) => {
@@ -34,40 +33,29 @@ router.post('/', async (req, res) => {
 		return res.status(400).json({ error: "Must submit a device name and user" });
 	}
 
-	const getUserQuery = 'SELECT user_id FROM users WHERE username = ?';
-	db.query(getUserQuery, [username], (err, userResult) => {
-		if (err) {
-			console.error("DB lookup error:", err);
-			return res.status(500).json({
-				error: "Database error during user lookup"
-			});
-		}
-
+	try {
+		const getUserQuery = 'SELECT user_id FROM users WHERE username = ?';
+		const [userResult] = await db.query(getUserQuery, [username]);
+		
 		if (userResult.length === 0) {
-			return res.status(404).json({
-				error: "User not found"
-			});
+			return res.status(404).json({ error: "User not found" });
 		}
 
 		const user_id = userResult[0].user_id;
 
 		const insertDeviceQuery = 'INSERT INTO devices (user_id, device_name) VALUES (?, ?)';
-		db.query(insertDeviceQuery, [user_id, device_name], (err, deviceResult) => {
-			if (err) {
-				console.error("DB insert error:", err);
-				return res.status(500).json({
-					error: "Database insert error"
-				});
-			}
+		const [deviceResult] = await db.query(insertDeviceQuery, [user_id, device_name]);
 
-			res.status(201).json({
-				message: "Device successfully added!",
-				device_id: deviceResult.insertId,
-				device_name,
-				username
-			});
+		res.status(201).json({
+			message: "Device successfully added!",
+			device_id: deviceResult.insertId,
+			device_name,
+			username
 		});
-	});
+	} catch (err){
+		console.error("DB error:", err.message);
+		res.status(500).json({ error: "Database error" });
+	}
 });
 
 module.exports = router;
